@@ -1,190 +1,597 @@
-document.addEventListener("DOMContentLoaded", function () {
+/* =========================================================
+   MARWAR INFOTECH — PREMIUM JAVASCRIPT
+========================================================= */
 
-const links = document.querySelectorAll('a[href^="#"]');
+document.addEventListener("DOMContentLoaded", () => {
 
-links.forEach(link => {
+    /* =====================================================
+       HEADER SCROLL EFFECT
+    ===================================================== */
 
-link.addEventListener("click", function(e){
+    const header = document.querySelector(".header");
 
-e.preventDefault();
+    function handleHeaderScroll() {
 
-const targetId = this.getAttribute("href");
+        if (window.scrollY > 40) {
+            header.classList.add("scrolled");
+        } else {
+            header.classList.remove("scrolled");
+        }
 
-const targetSection = document.querySelector(targetId);
+    }
 
-if(targetSection){
+    window.addEventListener("scroll", handleHeaderScroll);
 
-window.scrollTo({
-top: targetSection.offsetTop - 80,
-behavior: "smooth"
-});
+    handleHeaderScroll();
 
-}
 
-});
+    /* =====================================================
+       MOBILE MENU
+    ===================================================== */
 
-});
+    const menuToggle = document.querySelector(".menu-toggle");
+    const navbar = document.querySelector(".navbar");
 
-});
+    if (menuToggle && navbar) {
 
-/* HEADER SCROLL EFFECT */
+        menuToggle.addEventListener("click", () => {
 
-window.addEventListener("scroll", () => {
+            navbar.classList.toggle("active");
 
-const header = document.querySelector("header");
+            const icon = menuToggle.querySelector("i");
 
-if(window.scrollY > 50){
+            if (navbar.classList.contains("active")) {
 
-header.style.padding = "0px";
-header.style.boxShadow = "0 5px 20px rgba(0,0,0,0.15)";
+                icon.classList.remove("fa-bars");
+                icon.classList.add("fa-xmark");
 
-}else{
+            } else {
 
-header.style.boxShadow = "0 2px 15px rgba(0,0,0,0.08)";
+                icon.classList.remove("fa-xmark");
+                icon.classList.add("fa-bars");
 
-}
+            }
 
-});
+        });
 
-/* FADE IN ANIMATION */
 
-const observer = new IntersectionObserver((entries)=>{
+        /* Close menu when clicking a link */
 
-entries.forEach((entry)=>{
+        const navLinks = navbar.querySelectorAll("a");
 
-if(entry.isIntersecting){
+        navLinks.forEach(link => {
 
-entry.target.classList.add("show");
+            link.addEventListener("click", () => {
 
-}
+                navbar.classList.remove("active");
 
-});
+                const icon = menuToggle.querySelector("i");
 
-},{
-threshold:0.15
-});
+                icon.classList.remove("fa-xmark");
+                icon.classList.add("fa-bars");
 
-const hiddenElements = document.querySelectorAll(
-".service-card, .review-card, .founder-card, .trust-card, .why-card, .faq-item"
-);
+            });
 
-hiddenElements.forEach((el)=>{
+        });
 
-el.classList.add("hidden");
+    }
 
-observer.observe(el);
 
-});
+    /* =====================================================
+       SMOOTH SCROLL
+    ===================================================== */
 
-/* COUNTER ANIMATION */
+    const internalLinks = document.querySelectorAll(
+        'a[href^="#"]'
+    );
 
-const counters = document.querySelectorAll(".trust-card h3");
+    internalLinks.forEach(link => {
 
-counters.forEach(counter=>{
+        link.addEventListener("click", function (event) {
 
-const updateCounter = ()=>{
+            const targetId = this.getAttribute("href");
 
-const targetText = counter.innerText;
+            if (!targetId || targetId === "#") {
+                return;
+            }
 
-if(targetText.includes("%")){
+            const target = document.querySelector(targetId);
 
-let current = 0;
-const target = 100;
+            if (!target) {
+                return;
+            }
 
-const interval = setInterval(()=>{
+            event.preventDefault();
 
-current++;
+            const headerHeight =
+                document.querySelector(".header")?.offsetHeight || 0;
 
-counter.innerText = current + "%";
+            const targetPosition =
+                target.getBoundingClientRect().top +
+                window.pageYOffset -
+                headerHeight;
 
-if(current >= target){
+            window.scrollTo({
+                top: targetPosition,
+                behavior: "smooth"
+            });
 
-clearInterval(interval);
+        });
 
-}
+    });
 
-},20);
 
-}
+    /* =====================================================
+       FAQ ACCORDION
+    ===================================================== */
 
-};
+    const faqItems = document.querySelectorAll(".faq-item");
 
-updateCounter();
+    faqItems.forEach(item => {
 
-});/* CONTACT FORM */
+        const question = item.querySelector(".faq-question");
+        const answer = item.querySelector(".faq-answer");
 
-const form = document.querySelector("form");
+        if (!question || !answer) {
+            return;
+        }
 
-if(form){
+        question.addEventListener("click", () => {
 
-form.addEventListener("submit", function(e){
+            const isActive = item.classList.contains("active");
 
-e.preventDefault();
 
-const name =
-document.querySelector('input[type="text"]').value;
+            /* Close all other FAQs */
 
-const phone =
-document.querySelector('input[type="tel"]').value;
+            faqItems.forEach(otherItem => {
 
-const email =
-document.querySelector('input[type="email"]').value;
+                if (otherItem !== item) {
 
-const message =
-document.querySelector("textarea").value;
+                    otherItem.classList.remove("active");
 
-const whatsappMessage =
+                    const otherAnswer =
+                        otherItem.querySelector(".faq-answer");
+
+                    if (otherAnswer) {
+                        otherAnswer.style.maxHeight = null;
+                    }
+
+                }
+
+            });
+
+
+            /* Toggle current FAQ */
+
+            if (isActive) {
+
+                item.classList.remove("active");
+
+                answer.style.maxHeight = null;
+
+            } else {
+
+                item.classList.add("active");
+
+                answer.style.maxHeight =
+                    answer.scrollHeight + "px";
+
+            }
+
+        });
+
+    });
+
+
+    /* =====================================================
+       SCROLL REVEAL
+    ===================================================== */
+
+    const revealElements = document.querySelectorAll(
+        ".section-heading, " +
+        ".trust-card, " +
+        ".founder-card, " +
+        ".service-card, " +
+        ".portfolio-card, " +
+        ".why-item, " +
+        ".process-card, " +
+        ".review-card, " +
+        ".faq-item, " +
+        ".contact-info, " +
+        ".contact-form"
+    );
+
+
+    revealElements.forEach(element => {
+
+        element.style.opacity = "0";
+
+        element.style.transform = "translateY(25px)";
+
+        element.style.transition =
+            "opacity 0.7s ease, transform 0.7s ease";
+
+    });
+
+
+    const revealObserver = new IntersectionObserver(
+        (entries, observer) => {
+
+            entries.forEach(entry => {
+
+                if (!entry.isIntersecting) {
+                    return;
+                }
+
+                entry.target.style.opacity = "1";
+
+                entry.target.style.transform =
+                    "translateY(0)";
+
+                observer.unobserve(entry.target);
+
+            });
+
+        },
+        {
+            threshold: 0.12
+        }
+    );
+
+
+    revealElements.forEach(element => {
+
+        revealObserver.observe(element);
+
+    });
+
+
+    /* =====================================================
+       STAGGER CARD ANIMATION
+    ===================================================== */
+
+    const cardGroups = [
+        ".trust-grid",
+        ".services-grid",
+        ".portfolio-grid",
+        ".process-grid",
+        ".review-grid"
+    ];
+
+    cardGroups.forEach(selector => {
+
+        const cards = document.querySelectorAll(
+            `${selector} > *`
+        );
+
+        cards.forEach((card, index) => {
+
+            card.style.transitionDelay =
+                `${index * 0.08}s`;
+
+        });
+
+    });
+
+
+    /* =====================================================
+       CONTACT FORM → WHATSAPP
+    ===================================================== */
+
+    const contactForm =
+        document.getElementById("contactForm");
+
+    if (contactForm) {
+
+        contactForm.addEventListener("submit", function (event) {
+
+            event.preventDefault();
+
+
+            const name =
+                this.querySelector('[name="name"]')?.value.trim();
+
+            const phone =
+                this.querySelector('[name="phone"]')?.value.trim();
+
+            const email =
+                this.querySelector('[name="email"]')?.value.trim();
+
+            const message =
+                this.querySelector('[name="message"]')?.value.trim();
+
+
+            if (!name || !phone || !email || !message) {
+
+                alert(
+                    "Please fill in all the required fields."
+                );
+
+                return;
+
+            }
+
+
+            const whatsappNumber =
+                "917691867621";
+
+
+            const whatsappMessage =
 `Hello Marwar Infotech,
 
+I would like to discuss a website project.
+
 Name: ${name}
+
 Phone: ${phone}
+
 Email: ${email}
 
 Project Details:
-${message}`;
+${message}
 
-const whatsappURL =
-`https://wa.me/917691867621?text=${encodeURIComponent(whatsappMessage)}`;
+Please contact me regarding my project.`;
 
-window.open(whatsappURL, "_blank");
+
+            const whatsappURL =
+                `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(
+                    whatsappMessage
+                )}`;
+
+
+            window.open(
+                whatsappURL,
+                "_blank"
+            );
+
+
+            /* Optional form reset */
+
+            contactForm.reset();
+
+        });
+
+    }
+
+
+    /* =====================================================
+       PHONE NUMBER VALIDATION
+    ===================================================== */
+
+    const phoneInput =
+        document.querySelector('input[name="phone"]');
+
+    if (phoneInput) {
+
+        phoneInput.addEventListener("input", function () {
+
+            this.value =
+                this.value.replace(/\D/g, "");
+
+        });
+
+    }
+
+
+    /* =====================================================
+       PORTFOLIO EXTERNAL LINKS
+    ===================================================== */
+
+    const externalLinks =
+        document.querySelectorAll(
+            '.portfolio-card a[target="_blank"]'
+        );
+
+    externalLinks.forEach(link => {
+
+        link.setAttribute(
+            "rel",
+            "noopener noreferrer"
+        );
+
+    });
+
+
+    /* =====================================================
+       ACTIVE NAVIGATION
+    ===================================================== */
+
+    const sections =
+        document.querySelectorAll(
+            "section[id]"
+        );
+
+    const navigationLinks =
+        document.querySelectorAll(
+            '.navbar a[href^="#"]'
+        );
+
+
+    function updateActiveNavigation() {
+
+        let currentSection = "";
+
+        const scrollPosition =
+            window.scrollY + 150;
+
+
+        sections.forEach(section => {
+
+            const sectionTop =
+                section.offsetTop;
+
+            const sectionHeight =
+                section.offsetHeight;
+
+            if (
+                scrollPosition >= sectionTop &&
+                scrollPosition <
+                sectionTop + sectionHeight
+            ) {
+
+                currentSection =
+                    section.getAttribute("id");
+
+            }
+
+        });
+
+
+        navigationLinks.forEach(link => {
+
+            link.classList.remove("active");
+
+            if (
+                link.getAttribute("href") ===
+                `#${currentSection}`
+            ) {
+
+                link.classList.add("active");
+
+            }
+
+        });
+
+    }
+
+
+    window.addEventListener(
+        "scroll",
+        updateActiveNavigation
+    );
+
+    updateActiveNavigation();
+
+
+    /* =====================================================
+       BUTTON RIPPLE EFFECT
+    ===================================================== */
+
+    const buttons =
+        document.querySelectorAll(
+            ".btn-primary, " +
+            ".btn-secondary, " +
+            ".outline-btn, " +
+            ".form-submit, " +
+            ".nav-btn"
+        );
+
+
+    buttons.forEach(button => {
+
+        button.addEventListener("click", function (event) {
+
+            const ripple =
+                document.createElement("span");
+
+            ripple.classList.add("button-ripple");
+
+            const rect =
+                this.getBoundingClientRect();
+
+            const size =
+                Math.max(
+                    rect.width,
+                    rect.height
+                );
+
+            ripple.style.width =
+                `${size}px`;
+
+            ripple.style.height =
+                `${size}px`;
+
+            ripple.style.left =
+                `${event.clientX - rect.left - size / 2}px`;
+
+            ripple.style.top =
+                `${event.clientY - rect.top - size / 2}px`;
+
+
+            this.appendChild(ripple);
+
+
+            setTimeout(() => {
+
+                ripple.remove();
+
+            }, 600);
+
+        });
+
+    });
+
+
+    /* =====================================================
+       UPDATE COPYRIGHT YEAR
+    ===================================================== */
+
+    const footerYear =
+        document.querySelector(
+            ".footer-bottom p"
+        );
+
+    if (footerYear) {
+
+        const currentYear =
+            new Date().getFullYear();
+
+        footerYear.innerHTML =
+            `© ${currentYear} Marwar Infotech. All Rights Reserved.`;
+
+    }
+
+
+    /* =====================================================
+       IMAGE ERROR HANDLING
+    ===================================================== */
+
+    const images =
+        document.querySelectorAll("img");
+
+    images.forEach(image => {
+
+        image.addEventListener(
+            "error",
+            function () {
+
+                this.style.opacity = "0.3";
+
+                console.warn(
+                    `Image not found: ${this.src}`
+                );
+
+            }
+        );
+
+    });
+
+
+    /* =====================================================
+       PREVENT EMPTY HASH JUMP
+    ===================================================== */
+
+    document.querySelectorAll(
+        'a[href="#"]'
+    ).forEach(link => {
+
+        link.addEventListener(
+            "click",
+            event => event.preventDefault()
+        );
+
+    });
+
+
+    /* =====================================================
+       PAGE LOADED
+    ===================================================== */
+
+    document.body.classList.add("page-loaded");
+
+
+    console.log(
+        "Marwar Infotech website loaded successfully."
+    );
 
 });
-
-}
-
-/* ACTIVE MENU */
-
-const sections = document.querySelectorAll("section");
-const navLinks = document.querySelectorAll("nav ul li a");
-
-window.addEventListener("scroll", ()=>{
-
-let current = "";
-
-sections.forEach(section=>{
-
-const sectionTop = section.offsetTop - 150;
-
-if(pageYOffset >= sectionTop){
-
-current = section.getAttribute("id");
-
-}
-
-});
-
-navLinks.forEach(link=>{
-
-link.classList.remove("active");
-
-if(link.getAttribute("href").includes(current)){
-
-link.classList.add("active");
-
-}
-
-});
-
-});
-
-console.log("Marwar Infotech Website Loaded Successfully 🚀");
